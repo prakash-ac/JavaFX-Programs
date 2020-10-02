@@ -4,6 +4,7 @@ import javafx.event.*;
 import javafx.geometry.*;
 import javafx.scene.*;
 import javafx.scene.control.*;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.*;
 import javafx.scene.text.*;
@@ -12,15 +13,20 @@ import javafx.stage.Stage;
 public class RandomCircles extends Application {
 	private final static int WIDTH = 500, HEIGHT = 500;
 	private Group circleGroup;
+	VBox controlBox;
 	private Pane circlesPane;
 	private CheckBox fillCheckbox;
 	private Button redrawButton; 
 	private RadioButton singleColorButton, multipleColorButton;
 	private Text text;
+	private int numCircles;
+	HBox radioButtonBox;
 	
 	@Override
 	public void start(Stage stage) {
 		BorderPane borderPane = new BorderPane();
+		
+		numCircles = getNumberCircles();
 		
 		circlesPane = new Pane();
 		circlesPane.getChildren().add(createCircles());
@@ -31,7 +37,7 @@ public class RandomCircles extends Application {
 		text = new Text("");
 		
 		fillCheckbox = new CheckBox("Fill Color?");
-		fillCheckbox.setSelected(false);
+		fillCheckbox. setSelected(false);
 		fillCheckbox.setOnAction(this::handleButtons);
 		
 		HBox controlBox1 = new HBox(redrawButton, fillCheckbox, text);
@@ -49,11 +55,11 @@ public class RandomCircles extends Application {
 		multipleColorButton.setOnAction(this::handleButtons);
 		multipleColorButton.setToggleGroup(colorGroup);
 		
-		HBox radioButtonBox = new HBox(singleColorButton, multipleColorButton);
+		radioButtonBox = new HBox(singleColorButton, multipleColorButton);
 		radioButtonBox.setSpacing(20);
 		radioButtonBox.setAlignment(Pos.CENTER);
 		
-		VBox controlBox = new VBox(controlBox1, radioButtonBox);
+		controlBox = new VBox(controlBox1, radioButtonBox);
 		controlBox.setSpacing(20);
 		controlBox.setPadding(new Insets(10, 0, 20, 0));
 		borderPane.setBottom(controlBox);
@@ -66,7 +72,7 @@ public class RandomCircles extends Application {
 	protected Group createCircles() {
 		circleGroup = new Group();
 		Random generator = new Random();
-		for(int i=0;i<50;i++) {
+		for(int i=0;i<numCircles;i++) {
 			double x = generator.nextInt(WIDTH );
 			double y = generator.nextInt(HEIGHT-200); 
 			double radius = generator.nextInt(WIDTH/4); 
@@ -118,6 +124,36 @@ public class RandomCircles extends Application {
 				c.setFill(Color.TRANSPARENT);
 			}
 		}
+	}
+	
+	private int getNumberCircles() {
+		String errorMessage = "";
+		TextInputDialog inputDialog = new TextInputDialog();
+		inputDialog.setHeaderText("Number of Circles");
+		inputDialog.setHeaderText(null);
+		inputDialog.setContentText("How many circles?");
+	
+		// return default number of circles
+		
+		Optional<String> userInput = inputDialog.showAndWait();
+		if(userInput.isPresent()) {
+			String userInputString = userInput.get();
+			try {
+				numCircles = Integer.parseInt(userInputString);
+				return numCircles;
+			} catch(NumberFormatException ex) {
+				errorMessage = "Not a number!";
+			}
+		} else {
+			errorMessage = "No number entered!";
+		}
+		
+		Alert error = new Alert(AlertType.ERROR);
+		error.setHeaderText(null);
+		error.setTitle("Error!");
+		error.setContentText(errorMessage + "\nDrawing 20 Circles");
+		error.showAndWait();
+		return 20;
 	}
 	
 	public static void main(String[] args) {
